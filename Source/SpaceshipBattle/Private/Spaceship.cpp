@@ -70,10 +70,11 @@ void ASpaceship::LookAtCursor()
 	SetActorRotation(_rotationAngle);
 }
 
-void ASpaceship::Move()
+void ASpaceship::Move(float _delta)
 {
 	//根据玩家输入的方向向量移动飞船，第二参数为true表示会被其它碰撞体阻挡
-	AddActorWorldOffset(ConsumeMovementInputVector() * moveSpeed, true);
+	AddActorWorldOffset(ConsumeMovementInputVector() * moveSpeed * _delta, true);
+	//AddActorWorldOffset(ConsumeMovementInputVector() * moveSpeed * FApp::GetDeltaTime(), true);
 }
 
 void ASpaceship::HandleVerticalMoveInput(float _value)
@@ -100,7 +101,7 @@ void ASpaceship::Tick(float _delta)
 	//每帧调用LookAtCursor函数，使飞船持续朝向鼠标光标位置
 	LookAtCursor();
 	//每帧调用Move函数，根据玩家输入实际移动飞船
-	Move();
+	Move(_delta);
 	#pragma endregion
 }
 

@@ -38,7 +38,7 @@ protected:
 	#pragma region Properties
 	//注意此处是EditAnywhere而不是VisibleAnywhere，使得可在蓝图编辑器中修改该数值属性
 	UPROPERTY(EditAnywhere, Category = "Movement")
-	float moveSpeed = 100.0f;                                //飞船移动速度
+	float moveSpeed = 2000.0f;                               //飞船移动速度
 	#pragma endregion
 
 public:
@@ -50,14 +50,14 @@ protected:
 	#pragma region Control
 	void LookAtCursor();                                     //使飞船朝向鼠标光标位置
 
-	void Move();                                             //根据输入实际执行移动
+	void Move(float);                                        //根据输入实际执行移动
 	void HandleVerticalMoveInput(float);                     //处理垂直方向移动输入
 	void HandleHorizontalMoveInput(float);                   //处理水平方向移动输入
 	#pragma endregion
 
 public:
-	virtual void Tick(float DeltaTime) override;             //逐帧调用的更新函数
+	virtual void Tick(float) override;                       //逐帧调用的更新函数
 
 	//调用来绑定输入功能
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent*) override;
 };
