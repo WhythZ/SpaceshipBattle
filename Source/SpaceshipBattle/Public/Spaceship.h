@@ -43,12 +43,19 @@ protected:
 	#pragma endregion
 
 	#pragma region Attack
+	//自定义类型也需要使用EditAnywhere
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	//TSubclassOf限制该变量仅能接收子弹及其子类的赋值
 	TSubclassOf<ABullet> bulletBlueprint;                    //接收子弹预制体，用于实例化子弹
 
 	UPROPERTY(VisibleAnywhere, Category = "Attack")
 	USceneComponent* bulletSpawnPoint;                       //子弹发射点，空组件作为子弹发射位置的参考点
+
+	UPROPERTY(VisibleAnywhere, Category = "Attack")
+	FTimerHandle fireBulletTimerHandle;                      //计时器句柄，用于控制子弹连续发射的频率
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	double fireBulletInterval = 0.5f;                        //子弹连续发射的间隔时间，单位为秒
 	#pragma endregion
 
 public:
@@ -66,7 +73,9 @@ protected:
 	#pragma endregion
 
 	#pragma region Attack
-	void FireBullet();								         //发射子弹
+	void FireBullet();								         //单次发射子弹
+	void StartFireBullet();							         //开始发射子弹（按住鼠标左键）
+	void EndFireBullet();							         //结束发射子弹（松开鼠标左键）
 	#pragma endregion
 
 public:

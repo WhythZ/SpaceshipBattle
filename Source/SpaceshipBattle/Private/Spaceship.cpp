@@ -13,6 +13,8 @@
 #include "Kismet/KismetMathLibrary.h"
 //用于实例化子弹等功能
 #include "Engine/World.h"
+//引入计时器用于子弹连续发射
+#include "TimerManager.h"
 
 //引入子弹头文件
 #include "Bullet.h"
@@ -114,6 +116,25 @@ void ASpaceship::FireBullet()
 	}
 }
 
+void ASpaceship::StartFireBullet()
+{
+	//开启fireBulletTimerHandle计时器
+	GetWorldTimerManager().SetTimer(
+		fireBulletTimerHandle,   //计时器句柄
+		this,                    //调用的对象
+		&ASpaceship::FireBullet, //调用的函数
+		fireBulletInterval,      //计时器间隔时间
+		true,                    //是否循环调用
+		0.0f                     //初始延迟时间，0.0f表示立即开始
+	);
+}
+
+void ASpaceship::EndFireBullet()
+{
+	//关闭fireBulletTimerHandle计时器
+	GetWorldTimerManager().ClearTimer(fireBulletTimerHandle);
+}
+
 void ASpaceship::Tick(float _delta)
 {
 	Super::Tick(_delta);
@@ -139,7 +160,9 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* _playerInputComponen
 	#pragma endregion
 
 	#pragma region Attack
-	//此处是行为绑定，IE_Pressed表示按下而不是按住，触发时会调用FireBullet函数
-	_playerInputComponent->BindAction("FireBullet", IE_Pressed, this, &ASpaceship::FireBullet);
+	//此处是行为绑定，IE_Pressed表示按下而不是按住，IE_Released表示松开，触发时会调用传入的对应函数
+	//_playerInputComponent->BindAction("FireBullet", IE_Pressed, this, &ASpaceship::FireBullet);
+	_playerInputComponent->BindAction("StartFireBullet", IE_Pressed, this, &ASpaceship::StartFireBullet);
+	_playerInputComponent->BindAction("EndFireBullet", IE_Released, this, &ASpaceship::EndFireBullet);
 	#pragma endregion
 }
