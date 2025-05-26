@@ -1,30 +1,41 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Spaceship.h"
-//引入头文件，而不是前向声明，以调用相关函数和属性
+
+//引入数学库用于数学运算
+#include "Kismet/KismetMathLibrary.h"
+
+//引入组件相关头文件，而不是前向声明，以调用相关函数和属性
 //#include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/PlayerController.h"
 
 ASpaceship::ASpaceship()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	//使得该Pawn在每帧调用Tick()函数
 	PrimaryActorTick.bCanEverTick = true;
 
 	#pragma region Components
-	//创建球形碰撞组件并将其设置为根组件，每个游戏对象都需要有唯一根组件，若不显示指定则默认将第一个创建的组件作为根组件
-	SpaceshipStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpaceshipStaticMesh"));
-	RootComponent = SpaceshipStaticMesh;
-	
 	//实际上StaticMesh也可进行碰撞检测，但我们不需要那么精细的碰撞检测运算，所以使用球形碰撞组件
 	//但要记得在该类衍生的蓝图类中将StaticMesh的CollisionPresets设置为NoCollision
-	SpaceshipCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SpaceshipCollision"));
-	//将球形碰撞组件绑定到根组件上
-	SpaceshipCollision->SetupAttachment(RootComponent);
+	spaceshipCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SpaceshipCollision"));
+	//主动设置为根组件（每个游戏对象都需要有唯一根组件，若不显式指定则默认将第一个创建的组件作为根组件）
+	RootComponent = spaceshipCollision;
+
+	//创建三维网格组件并将其绑定到根组件上
+	spaceshipStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpaceshipStaticMesh"));
+	spaceshipStaticMesh->SetupAttachment(RootComponent);
+
+	//创建摄像机所需的弹簧臂组件并将其绑定到根组件上，该组件可使得作为飞船子组件的摄像机不跟随飞船旋转
+	spaceshipSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpaceshipSpringArm"));
+	spaceshipSpringArm->SetupAttachment(RootComponent);
 
 	//创建默认摄像机组件并将其绑定到根组件上
-	SpaceshipCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("SpaceshipCamera"));
-	SpaceshipCamera->SetupAttachment(RootComponent);
+	spaceshipCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("SpaceshipCamera"));
+	//将摄像机绑定到弹簧臂组件上而不是直接绑到根组件
+	spaceshipCamera->SetupAttachment(spaceshipSpringArm);
 	#pragma endregion
 }
 
@@ -32,16 +43,42 @@ void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	#pragma region Components
+	//获取玩家控制器，强转为APlayerController类型
+	//写在BeginPlay()而不是构造函数中，因为其它组件在该对象调用构造函数时可能还未创建完成
+	spaceshipPlayerController = Cast<APlayerController>(GetController());
+	//显示鼠标光标
+	spaceshipPlayerController->bShowMouseCursor = true;
+	#pragma endregion
+}
+
+void ASpaceship::LookAtCursor()
+{
+	//获取鼠标光标（2D屏幕坐标）在世界空间中对应的位置（3D世界坐标）和方向（从摄像机指向光标位置的向量，此处无用）
+	FVector _cursorLocation, _cursorDirection;
+	spaceshipPlayerController->DeprojectMousePositionToWorld(_cursorLocation, _cursorDirection);
+	//由于本游戏是2D的视角，所以无需Z轴旋转，保持原样即可
+	FVector _targetLocation2D = FVector(_cursorLocation.X, _cursorLocation.Y, GetActorLocation().Z);
+
+	//计算从飞船当前位置（根据其当前朝向）看向光标目标位置所需的旋转角度
+	FRotator _rotationAngle = UKismetMathLibrary::FindLookAtRotation(
+		GetActorLocation(), //起始位置（飞船位置）
+		_targetLocation2D   //目标位置（光标位置）
+	);
+
+	//实际应用旋转角度到飞船上，使其朝向鼠标光标位置
+	SetActorRotation(_rotationAngle);
 }
 
 void ASpaceship::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//每帧调用LookAtCursor函数，使飞船持续朝向鼠标光标位置
+	LookAtCursor();
 }
 
 void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
-
