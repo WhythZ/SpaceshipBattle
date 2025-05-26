@@ -70,15 +70,49 @@ void ASpaceship::LookAtCursor()
 	SetActorRotation(_rotationAngle);
 }
 
-void ASpaceship::Tick(float DeltaTime)
+void ASpaceship::Move()
 {
-	Super::Tick(DeltaTime);
-
-	//每帧调用LookAtCursor函数，使飞船持续朝向鼠标光标位置
-	LookAtCursor();
+	//根据玩家输入的方向向量移动飞船，第二参数为true表示会被其它碰撞体阻挡
+	AddActorWorldOffset(ConsumeMovementInputVector() * moveSpeed, true);
 }
 
-void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASpaceship::HandleVerticalMoveInput(float _value)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	//_value为1表示向上，-1表示向下，0表示不移动
+	//注意UpVector代表(0,0,1)是Z轴上的方向，而ForwardVector代表(1,0,0)是X轴上的方向
+	AddMovementInput(FVector::ForwardVector, _value);
+	//AddMovementInput(FVector(1, 0, 0), _value);
+}
+
+void ASpaceship::HandleHorizontalMoveInput(float _value)
+{
+	//_value为1表示向右，-1表示向左，0表示不移动
+	//注RightVector代表(0,1,0)是Y轴上的方向
+	AddMovementInput(FVector::RightVector, _value);
+	//AddMovementInput(FVector(0, 1, 0), _value);
+}
+
+void ASpaceship::Tick(float _delta)
+{
+	Super::Tick(_delta);
+
+	#pragma region Control
+	//每帧调用LookAtCursor函数，使飞船持续朝向鼠标光标位置
+	LookAtCursor();
+	//每帧调用Move函数，根据玩家输入实际移动飞船
+	Move();
+	#pragma endregion
+}
+
+void ASpaceship::SetupPlayerInputComponent(UInputComponent* _playerInputComponent)
+{
+	Super::SetupPlayerInputComponent(_playerInputComponent);
+
+	#pragma region Movement
+	//此处采用轴绑定（处理连续的输入）而不是行为绑定BindAction（例如用于跳跃输入）
+	//绑定垂直和水平方向的移动输入，此处传入的函数签名必须接收一个float参数
+	//此处传入的字符串需要在项目设置的输入部分中定义（Edit-> ProjectSettings->Input）
+	_playerInputComponent->BindAxis("MoveVertical", this, &ASpaceship::HandleVerticalMoveInput);
+	_playerInputComponent->BindAxis("MoveHorizontal", this, &ASpaceship::HandleHorizontalMoveInput);
+	#pragma endregion
 }
