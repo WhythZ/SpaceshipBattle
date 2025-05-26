@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Bullet.generated.h"
 
+class UProjectileMovementComponent;
+
 UCLASS()
 class SPACESHIPBATTLE_API ABullet : public AActor
 {
@@ -18,6 +20,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	UStaticMeshComponent* bulletStaticMesh;               //静态网格组件，此处兼具碰撞体的作用，无需USphereComponent等
+
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+	UProjectileMovementComponent* bulletProjMovement;     //子弹投射物运动组件用于控制移动，需将其重力归零防止Z轴坠落
 	#pragma endregion
 
 public:

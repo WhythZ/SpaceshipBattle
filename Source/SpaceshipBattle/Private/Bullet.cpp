@@ -2,6 +2,8 @@
 
 #include "Bullet.h"
 
+#include "GameFramework/ProjectileMovementComponent.h"
+
 ABullet::ABullet()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -12,6 +14,9 @@ ABullet::ABullet()
 
 	bulletStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BulletStaticMesh"));
 	bulletStaticMesh->SetupAttachment(RootComponent);
+
+	//该组件和根组件同级，无需绑定到RootComponent
+	bulletProjMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("BulletProjMovement"));
 	#pragma endregion
 }
 
