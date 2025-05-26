@@ -6,10 +6,11 @@
 #include "GameFramework/Pawn.h"
 #include "Spaceship.generated.h"
 
-//此外也可引入头文件，但此处前向声明能提升编译速度
+//前向声明，避免引入头文件拉低编译速度
 class USphereComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class ABullet;
 
 UCLASS()
 class SPACESHIPBATTLE_API ASpaceship : public APawn
@@ -41,6 +42,15 @@ protected:
 	float moveSpeed = 2000.0f;                               //飞船移动速度
 	#pragma endregion
 
+	#pragma region Attack
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	//TSubclassOf限制该变量仅能接收子弹及其子类的赋值
+	TSubclassOf<ABullet> bulletBlueprint;                    //接收子弹预制体，用于实例化子弹
+
+	UPROPERTY(VisibleAnywhere, Category = "Attack")
+	USceneComponent* bulletSpawnPoint;                       //子弹发射点，空组件作为子弹发射位置的参考点
+	#pragma endregion
+
 public:
 	ASpaceship();                                            //构造函数，用于设置默认属性
 
@@ -53,6 +63,10 @@ protected:
 	void Move(float);                                        //根据输入实际执行移动
 	void HandleVerticalMoveInput(float);                     //处理垂直方向移动输入
 	void HandleHorizontalMoveInput(float);                   //处理水平方向移动输入
+	#pragma endregion
+
+	#pragma region Attack
+	void FireBullet();								         //发射子弹
 	#pragma endregion
 
 public:

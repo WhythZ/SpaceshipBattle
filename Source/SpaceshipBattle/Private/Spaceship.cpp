@@ -2,15 +2,20 @@
 
 #include "Spaceship.h"
 
-//引入数学库用于数学运算
-#include "Kismet/KismetMathLibrary.h"
-
-//引入组件相关头文件，而不是前向声明，以调用相关函数和属性
+//引入组件相关头文件，而不是像Spaceship.h中使用前向声明，以调用相关函数和属性，并避免头文件中的额外编译开销
 //#include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
+
+//引入数学库用于数学运算
+#include "Kismet/KismetMathLibrary.h"
+//用于实例化子弹等功能
+#include "Engine/World.h"
+
+//引入子弹头文件
+#include "Bullet.h"
 
 ASpaceship::ASpaceship()
 {
@@ -36,6 +41,9 @@ ASpaceship::ASpaceship()
 	spaceshipCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("SpaceshipCamera"));
 	//将摄像机绑定到弹簧臂组件上而不是直接绑到根组件
 	spaceshipCamera->SetupAttachment(spaceshipSpringArm);
+
+	bulletSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("BulletSpawnPoint"));
+	bulletSpawnPoint->SetupAttachment(RootComponent);
 	#pragma endregion
 }
 
@@ -93,6 +101,19 @@ void ASpaceship::HandleHorizontalMoveInput(float _value)
 	//AddMovementInput(FVector(0, 1, 0), _value);
 }
 
+void ASpaceship::FireBullet()
+{
+	//防止子弹预制体未被设置，导致调用此函数导致崩溃
+	if (bulletBlueprint)
+	{
+		//根据bulletSpawnPoint的位置和旋转生成bulletBlueprint类型的子弹
+		FActorSpawnParameters _spawnParams;
+		GetWorld()->SpawnActor<ABullet>(bulletBlueprint,
+			bulletSpawnPoint->GetComponentLocation(),
+			bulletSpawnPoint->GetComponentRotation(),_spawnParams);
+	}
+}
+
 void ASpaceship::Tick(float _delta)
 {
 	Super::Tick(_delta);
@@ -110,10 +131,15 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* _playerInputComponen
 	Super::SetupPlayerInputComponent(_playerInputComponent);
 
 	#pragma region Movement
-	//此处采用轴绑定（处理连续的输入）而不是行为绑定BindAction（例如用于跳跃输入）
+	//此处采用轴绑定（处理连续的输入）而不是行为绑定BindAction（处理单次的输入，例如用于跳跃输入）
 	//绑定垂直和水平方向的移动输入，此处传入的函数签名必须接收一个float参数
 	//此处传入的字符串需要在项目设置的输入部分中定义（Edit-> ProjectSettings->Input）
 	_playerInputComponent->BindAxis("MoveVertical", this, &ASpaceship::HandleVerticalMoveInput);
 	_playerInputComponent->BindAxis("MoveHorizontal", this, &ASpaceship::HandleHorizontalMoveInput);
+	#pragma endregion
+
+	#pragma region Attack
+	//此处是行为绑定，IE_Pressed表示按下而不是按住，触发时会调用FireBullet函数
+	_playerInputComponent->BindAction("FireBullet", IE_Pressed, this, &ASpaceship::FireBullet);
 	#pragma endregion
 }
