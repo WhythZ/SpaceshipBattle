@@ -50,5 +50,6 @@ protected:
 public:	
 	virtual void Tick(float) override;
 
+	
 	//void ClearAllEnemyships();
 };

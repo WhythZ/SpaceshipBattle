@@ -11,6 +11,8 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Spaceship.h"
+#include "EnemyshipSpawner.h"
+#include "ShipGameMode.h"
 
 AEnemyship::AEnemyship()
 {
@@ -31,6 +33,11 @@ void AEnemyship::BeginPlay()
 
 	//获取玩家飞船的引用，此处GetPlayerPawn获取0号的APawn类型玩家，强转为ASpaceship类型
 	playerSpaceship = Cast<ASpaceship>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	////获取生成器的引用
+	//TArray<AActor*> _enemyshipSpawners;
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyship::StaticClass(), _enemyshipSpawners);
+	//enemyshipSpawner = Cast<AEnemyshipSpawner>(_enemyshipSpawners[0]);
 
 	//设置敌人飞船的随机颜色，并对其执行一个生成时的Scale缩放复原视觉效果，该函数在蓝图中实现
 	SetRandomColor();
@@ -78,3 +85,8 @@ void AEnemyship::SetupPlayerInputComponent(UInputComponent* _playerInputComponen
 	Super::SetupPlayerInputComponent(_playerInputComponent);
 }
 
+void AEnemyship::OnDeath()
+{
+	Cast<AShipGameMode>(UGameplayStatics::GetGameMode(this))->IncreaseScore();
+	Destroy();
+}

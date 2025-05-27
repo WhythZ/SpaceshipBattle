@@ -8,6 +8,7 @@
 
 class USphereComponent;
 class ASpaceship;
+class AEnemyshipSpawner;
 
 UCLASS()
 class SPACESHIPBATTLE_API AEnemyship : public APawn
@@ -30,6 +31,7 @@ protected:
 	#pragma endregion
 
 	ASpaceship* playerSpaceship;                             //玩家飞船的引用，用于获取玩家位置
+	//AEnemyshipSpawner* enemyshipSpawner;                     //敌人飞船生成器的引用，用于调用其功能
 
 public:
 	AEnemyship();
@@ -47,4 +49,6 @@ public:
 	virtual void Tick(float) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent*) override;
+
+	void OnDeath();
 };

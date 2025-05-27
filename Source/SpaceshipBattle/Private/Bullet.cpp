@@ -44,7 +44,7 @@ void ABullet::NotifyActorBeginOverlap(AActor* _otherActor)
 	//若_enemyship不为空，说明_otherActor是敌人飞船类型的对象
 	if (_enemyship)
 	{
-		_enemyship->Destroy();
+		_enemyship->OnDeath();
 		Destroy();
 	}
 	//碰到墙的阻挡时销毁子弹
