@@ -32,9 +32,6 @@ protected:
 
 	ASpaceship* playerSpaceship;                             //玩家飞船的引用，用于获取玩家位置
 
-	UPROPERTY(EditAnywhere, Category = "Particles")
-	UParticleSystem* explosionParticleSystem;                //爆炸粒子特效，死亡时播放一次
-
 public:
 	AEnemyship();
 
@@ -46,6 +43,9 @@ protected:
 	//使得该函数能在蓝图编辑器中进行实现，而不是在C++中实现
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetRandomColor();                                   //敌人飞船在生成时设置随机的机身机翼颜色
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EmitExplosionParticles();
 
 public:	
 	virtual void Tick(float) override;
