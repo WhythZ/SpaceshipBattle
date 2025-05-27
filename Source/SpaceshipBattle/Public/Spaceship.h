@@ -35,6 +35,9 @@ protected:
 	UCameraComponent* spaceshipCamera;				         //照向飞船的视角摄像机组件
 
 	APlayerController* spaceshipPlayerController;            //玩家控制器，用于获取玩家输入
+
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+	UParticleSystemComponent* thrusterParticleSystem;        //引擎喷射粒子系统组件，用于显示飞船引擎喷射效果
 	#pragma endregion
 
 	#pragma region Movement

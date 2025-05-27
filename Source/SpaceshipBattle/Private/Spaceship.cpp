@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Particles/ParticleSystemComponent.h"
 
 //引入数学库用于数学运算
 #include "Kismet/KismetMathLibrary.h"
@@ -50,6 +51,9 @@ ASpaceship::ASpaceship()
 
 	bulletSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("BulletSpawnPoint"));
 	bulletSpawnPoint->SetupAttachment(RootComponent);
+
+	thrusterParticleSystem = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ThrusterParticleSystem"));
+	thrusterParticleSystem->SetupAttachment(RootComponent);
 	#pragma endregion
 }
 
