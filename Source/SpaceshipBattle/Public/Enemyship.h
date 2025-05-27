@@ -19,7 +19,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	USphereComponent* enemyshipCollision;                    //用于处理敌人飞船碰撞的球形碰撞组件
 
-	UPROPERTY(VisibleAnywhere, Category = "Component")
+	//BlueprintReadWrite使得该组件能在蓝图编辑器中查看和修改，若想只读则可设置BlueprintReadOnly
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	UStaticMeshComponent* enemyshipStaticMesh;               //用于显示敌人飞船的静态网格组件
 	#pragma endregion
 
@@ -37,6 +38,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	void MoveTowardsPlayer(float);
+
+	//使得该函数能在蓝图编辑器中进行实现，而不是在C++中实现
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetRandomColor();                                   //敌人飞船在生成时设置随机的机身机翼颜色
 
 public:	
 	virtual void Tick(float) override;
