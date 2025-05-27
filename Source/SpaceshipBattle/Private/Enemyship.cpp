@@ -87,6 +87,19 @@ void AEnemyship::SetupPlayerInputComponent(UInputComponent* _playerInputComponen
 
 void AEnemyship::OnDeath()
 {
+	//死亡时的爆炸粒子效果
+	if (explosionParticleSystem)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			this,
+			explosionParticleSystem,  //爆炸效果粒子系统
+			GetActorLocation(),       //在飞船位置生成粒子效果
+			FRotator::ZeroRotator,    //旋转角度
+			FVector(1.0f),            //缩放比例
+			true                      //是否自动销毁
+		);
+	}
+
 	Cast<AShipGameMode>(UGameplayStatics::GetGameMode(this))->IncreaseScore();
 	Destroy();
 }

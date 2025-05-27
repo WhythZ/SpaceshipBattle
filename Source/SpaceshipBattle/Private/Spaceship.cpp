@@ -9,6 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Particles/ParticleSystem.h"
 
 //引入数学库用于数学运算
 #include "Kismet/KismetMathLibrary.h"
@@ -52,8 +53,8 @@ ASpaceship::ASpaceship()
 	bulletSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("BulletSpawnPoint"));
 	bulletSpawnPoint->SetupAttachment(RootComponent);
 
-	thrusterParticleSystem = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ThrusterParticleSystem"));
-	thrusterParticleSystem->SetupAttachment(RootComponent);
+	thrusterParticleSystemComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ThrusterParticleSystemComp"));
+	thrusterParticleSystemComp->SetupAttachment(RootComponent);
 	#pragma endregion
 }
 
@@ -139,7 +140,8 @@ void ASpaceship::FireBullet()
 	}
 
 	//播放音效
-	UGameplayStatics::PlaySoundAtLocation(this, fireBulletSFX, GetActorLocation());
+	if (fireBulletSFX)
+		UGameplayStatics::PlaySoundAtLocation(this, fireBulletSFX, GetActorLocation());
 }
 
 void ASpaceship::StartFireBullet()
@@ -185,7 +187,21 @@ void ASpaceship::OnDeath()
 	);
 
 	//播放音效
-	UGameplayStatics::PlaySoundAtLocation(this, gameOverSFX, GetActorLocation());
+	if (gameOverSFX)
+		UGameplayStatics::PlaySoundAtLocation(this, gameOverSFX, GetActorLocation());
+
+	//死亡时的爆炸粒子效果
+	if (explosionParticleSystem)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			this,
+			explosionParticleSystem,  //爆炸效果粒子系统
+			GetActorLocation(),       //在飞船位置生成粒子效果
+			FRotator::ZeroRotator,    //旋转角度
+			FVector(1.0f),            //缩放比例
+			true                      //是否自动销毁
+		);
+	}
 }
 
 void ASpaceship::RestartLevel()
@@ -219,14 +235,14 @@ void ASpaceship::UpdateParticleSystem()
 {
 	if (!bAlive)
 	{
-		thrusterParticleSystem->Deactivate();
+		thrusterParticleSystemComp->Deactivate();
 		return;
 	}
 
 	if (bMovingVertical || bMovingHorizontal)
-		thrusterParticleSystem->Activate();
+		thrusterParticleSystemComp->Activate();
 	else
-		thrusterParticleSystem->Deactivate();
+		thrusterParticleSystemComp->Deactivate();
 }
 
 void ASpaceship::Tick(float _delta)

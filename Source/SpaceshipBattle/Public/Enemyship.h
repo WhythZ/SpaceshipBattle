@@ -31,7 +31,9 @@ protected:
 	#pragma endregion
 
 	ASpaceship* playerSpaceship;                             //玩家飞船的引用，用于获取玩家位置
-	//AEnemyshipSpawner* enemyshipSpawner;                     //敌人飞船生成器的引用，用于调用其功能
+
+	UPROPERTY(EditAnywhere, Category = "Particles")
+	UParticleSystem* explosionParticleSystem;                //爆炸粒子特效，死亡时播放一次
 
 public:
 	AEnemyship();

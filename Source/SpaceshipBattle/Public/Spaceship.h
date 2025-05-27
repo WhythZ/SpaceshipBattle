@@ -21,7 +21,7 @@ class SPACESHIPBATTLE_API ASpaceship : public APawn
 protected:
 	#pragma region Components
 	//用VisibleAnywhere使该组件在UE蓝图编辑器中可见（对组件来说，也可以更改），并用Category将其分类
-	//但对于内置属性如int等，VisibleAnywhere能使其可见但不可更改，除非用EditableAnywhere
+	//但对于内置属性如int、自定义类型等非Component类型，VisibleAnywhere能使其可见但不可更改，用EditableAnywhere才可修改
 	UPROPERTY(VisibleAnywhere, Category="Component")
 	USphereComponent* spaceshipCollision;                    //用于处理飞船碰撞的球形碰撞组件
 	
@@ -37,7 +37,7 @@ protected:
 	APlayerController* spaceshipPlayerController;            //玩家控制器，用于获取玩家输入
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	UParticleSystemComponent* thrusterParticleSystem;        //引擎喷射粒子系统组件，用于显示飞船引擎喷射效果
+	UParticleSystemComponent* thrusterParticleSystemComp;    //引擎喷射粒子系统组件，用于显示飞船引擎喷射效果
 	#pragma endregion
 
 	#pragma region Movement
@@ -79,6 +79,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Sounds")
 	USoundCue* gameOverSFX;
 	#pragma endregion
+
+	UPROPERTY(EditAnywhere, Category = "Particles")
+	UParticleSystem* explosionParticleSystem;                //爆炸粒子特效，死亡时播放一次
 
 public:
 	ASpaceship();                                            //构造函数，用于设置默认属性
