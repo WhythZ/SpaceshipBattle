@@ -7,6 +7,7 @@
 #include "EnemyshipSpawner.generated.h"
 
 class AEnemyship;
+class ASpaceship;
 class UBoxComponent;
 
 UCLASS()
@@ -18,14 +19,32 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Component")
 	TSubclassOf<AEnemyship> enemyshipBlueprint;                //接收敌人预制体，用于实例化敌人
 
-	UPROPERTY(VisibleAnywhere, Category = "Enemyship")
+	#pragma region SpawnEnemyship
+	UPROPERTY(VisibleAnywhere, Category = "SpawnEnemyship")
 	UBoxComponent* spawnArea;                                  //敌人生成区域，使用盒形碰撞组件作为生成区域的参考
+
+	UPROPERTY(EditAnywhere, Category = "SpawnEnemyship")
+	float minimalDistanceToPlayer = 1000.0f;                   //敌人生成点与玩家之间的最小距离
+
+	ASpaceship* playerSpaceship;                               //玩家飞船的引用
+
+	UPROPERTY(VisibleAnywhere, Category = "SpawnEnemyship")
+	FTimerHandle spawnTimerHandle;                             //用于间歇生成敌人飞船的计时器句柄
+
+	UPROPERTY(EditAnywhere, Category = "SpawnEnemyship")
+	float spawnInterval = 1.0f;                                //敌人飞船生成的时间间隔，单位为秒
+	#pragma endregion
 
 public:	
 	AEnemyshipSpawner();
 
 protected:
 	virtual void BeginPlay() override;
+
+	#pragma region SpawnEnemyship
+	FVector FindSpawnPoint();                                  //找到一个合适的生成点位置
+	void SpawnEnemyship();                                     //在指定位置生成敌人飞船
+	#pragma endregion
 
 public:	
 	virtual void Tick(float) override;
