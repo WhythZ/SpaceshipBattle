@@ -16,13 +16,13 @@ class SPACESHIPBATTLE_API ABullet : public AActor
 protected:
 	#pragma region Components
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USceneComponent* bulletRootEmpty;                     //空组件作为根组件，使得子组件StaticMesh可调整旋转角度
+	USceneComponent* bulletRootEmpty;                        //空组件作为根组件，使得子组件StaticMesh可调整旋转角度
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	UStaticMeshComponent* bulletStaticMesh;               //静态网格组件，此处兼具碰撞体的作用，无需USphereComponent等
+	UStaticMeshComponent* bulletStaticMesh;                  //静态网格组件，此处兼具碰撞体的作用，无需USphereComponent等
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	UProjectileMovementComponent* bulletProjMovement;     //子弹投射物运动组件用于控制移动，需将其重力归零防止Z轴坠落
+	UProjectileMovementComponent* bulletProjMovement;        //子弹投射物运动组件用于控制移动，需将其重力归零防止Z轴坠落
 	#pragma endregion
 
 public:
@@ -33,4 +33,6 @@ protected:
 
 public:	
 	virtual void Tick(float) override;
+
+	virtual void NotifyActorBeginOverlap(AActor*) override;  //重写碰撞检测函数，使得子弹能通过碰撞对敌人产生某种效果
 };
