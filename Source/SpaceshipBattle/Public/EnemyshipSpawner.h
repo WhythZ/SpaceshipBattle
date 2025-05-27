@@ -28,7 +28,6 @@ protected:
 
 	ASpaceship* playerSpaceship;                               //玩家飞船的引用
 
-	UPROPERTY(VisibleAnywhere, Category = "SpawnEnemyship")
 	FTimerHandle spawnTimerHandle;                             //用于间歇生成敌人飞船的计时器句柄
 
 	UPROPERTY(EditAnywhere, Category = "SpawnEnemyship")

@@ -36,7 +36,7 @@ protected:
 	APlayerController* spaceshipPlayerController;            //玩家控制器，用于获取玩家输入
 	#pragma endregion
 
-	#pragma region Properties
+	#pragma region Movement
 	//注意此处是EditAnywhere而不是VisibleAnywhere，使得可在蓝图编辑器中修改该数值属性
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float moveSpeed = 2000.0f;                               //飞船移动速度
@@ -51,11 +51,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Attack")
 	USceneComponent* bulletSpawnPoint;                       //子弹发射点，空组件作为子弹发射位置的参考点
 
-	UPROPERTY(VisibleAnywhere, Category = "Attack")
 	FTimerHandle fireBulletTimerHandle;                      //计时器句柄，用于控制子弹连续发射的频率
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	double fireBulletInterval = 0.5f;                        //子弹连续发射的间隔时间，单位为秒
+	#pragma endregion
+
+	#pragma region Restart
+	FTimerHandle restartTimerHandle;                         //用于定时重启的计时器句柄
+	
+	UPROPERTY(EditAnywhere, Category = "Restart")
+	double restartCooldown = 2.0f;                           //死亡后经过多久重启游戏
 	#pragma endregion
 
 public:
@@ -78,9 +84,20 @@ protected:
 	void EndFireBullet();							         //结束发射子弹（松开鼠标左键）
 	#pragma endregion
 
+	#pragma region Restart
+	void OnDeath();                                          //玩家死亡时调用的函数，用于处理死亡逻辑
+	void Restart();                                          //用于在玩家死亡后重启游戏
+	#pragma endregion
+
+	bool isAlive = true;                                     //玩家是否存活的标志位
+
 public:
 	virtual void Tick(float) override;                       //逐帧调用的更新函数
 
 	//调用来绑定输入功能
 	virtual void SetupPlayerInputComponent(class UInputComponent*) override;
+
+	virtual void NotifyActorBeginOverlap(AActor*) override;  //重写碰撞检测函数
+
+	bool IsAlive() const;
 };

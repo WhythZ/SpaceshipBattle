@@ -38,6 +38,9 @@ void AEnemyship::BeginPlay()
 
 void AEnemyship::MoveTowardsPlayer(float _delta)
 {
+	//若玩家飞船不存在或已死亡，则不执行移动逻辑
+	if (!playerSpaceship->IsAlive()) return;
+
 	FVector _playerLocation = playerSpaceship->GetActorLocation();
 	FVector _enemyLocation = GetActorLocation();
 

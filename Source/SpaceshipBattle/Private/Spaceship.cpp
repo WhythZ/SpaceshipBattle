@@ -15,9 +15,12 @@
 #include "Engine/World.h"
 //引入计时器用于子弹连续发射
 #include "TimerManager.h"
+//用于重启关卡等功能
+#include "Kismet/GameplayStatics.h"
 
 //引入子弹头文件
 #include "Bullet.h"
+#include "Enemyship.h"
 
 ASpaceship::ASpaceship()
 {
@@ -81,7 +84,7 @@ void ASpaceship::LookAtCursor()
 }
 
 void ASpaceship::Move(float _delta)
-{
+{	
 	//根据玩家输入的方向向量移动飞船，第二参数为true表示会被其它碰撞体阻挡
 	AddActorWorldOffset(ConsumeMovementInputVector() * moveSpeed * _delta, true);
 	//AddActorWorldOffset(ConsumeMovementInputVector() * moveSpeed * FApp::GetDeltaTime(), true);
@@ -89,6 +92,9 @@ void ASpaceship::Move(float _delta)
 
 void ASpaceship::HandleVerticalMoveInput(float _value)
 {
+	//死亡时不执行该函数
+	if (!isAlive) return;
+
 	//_value为1表示向上，-1表示向下，0表示不移动
 	//注意UpVector代表(0,0,1)是Z轴上的方向，而ForwardVector代表(1,0,0)是X轴上的方向
 	AddMovementInput(FVector::ForwardVector, _value);
@@ -97,6 +103,9 @@ void ASpaceship::HandleVerticalMoveInput(float _value)
 
 void ASpaceship::HandleHorizontalMoveInput(float _value)
 {
+	//死亡时不执行该函数
+	if (!isAlive) return;
+
 	//_value为1表示向右，-1表示向左，0表示不移动
 	//注RightVector代表(0,1,0)是Y轴上的方向
 	AddMovementInput(FVector::RightVector, _value);
@@ -105,6 +114,9 @@ void ASpaceship::HandleHorizontalMoveInput(float _value)
 
 void ASpaceship::FireBullet()
 {
+	//死亡时不执行该函数
+	if (!isAlive) return;
+
 	//防止子弹预制体未被设置，导致调用此函数导致崩溃
 	if (bulletBlueprint)
 	{
@@ -118,6 +130,9 @@ void ASpaceship::FireBullet()
 
 void ASpaceship::StartFireBullet()
 {
+	//死亡时不执行该函数
+	if (!isAlive) return;
+
 	//开启fireBulletTimerHandle计时器
 	GetWorldTimerManager().SetTimer(
 		fireBulletTimerHandle,   //计时器句柄
@@ -135,21 +150,61 @@ void ASpaceship::EndFireBullet()
 	GetWorldTimerManager().ClearTimer(fireBulletTimerHandle);
 }
 
+void ASpaceship::OnDeath()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("ASpaceship::OnDeath()"));
+
+	//不能直接销毁玩家，会导致崩溃
+	//Destroy();
+	//将StaticMesh的可见性设置为不可见，隐藏飞船
+	spaceshipStaticMesh->SetVisibility(false);
+	//将玩家存活状态设置为false
+	isAlive = false;
+
+	//开启计时器
+	GetWorldTimerManager().SetTimer(
+		restartTimerHandle,      //计时器句柄
+		this,                    //调用的对象
+		&ASpaceship::Restart,    //调用的函数
+		restartCooldown,         //计时器间隔时间
+		false                    //此处无需循环调用
+	);
+}
+
+void ASpaceship::Restart()
+{
+	//重置玩家存活状态
+	isAlive = true;
+	//恢复可见性
+	spaceshipStaticMesh->SetVisibility(true);
+
+	//重启当前关卡
+	//UGameplayStatics::OpenLevel(this, "MainMap");
+	//UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
+}
+
 void ASpaceship::Tick(float _delta)
 {
 	Super::Tick(_delta);
 
-	#pragma region Control
-	//每帧调用LookAtCursor函数，使飞船持续朝向鼠标光标位置
-	LookAtCursor();
-	//每帧调用Move函数，根据玩家输入实际移动飞船
-	Move(_delta);
-	#pragma endregion
+	//若玩家已死亡则不执行
+	if (isAlive)
+	{
+		#pragma region Control
+		//每帧调用LookAtCursor函数，使飞船持续朝向鼠标光标位置
+		LookAtCursor();
+		//每帧调用Move函数，根据玩家输入实际移动飞船
+		Move(_delta);
+		#pragma endregion
+	}
 }
 
 void ASpaceship::SetupPlayerInputComponent(UInputComponent* _playerInputComponent)
 {
 	Super::SetupPlayerInputComponent(_playerInputComponent);
+	
+	//这些输入检测并不是动态更新的，而是在开始时进行绑定的，所以在此处执行下述语句是无意义的
+	//if (!isAlive) return;
 
 	#pragma region Movement
 	//此处采用轴绑定（处理连续的输入）而不是行为绑定BindAction（处理单次的输入，例如用于跳跃输入）
@@ -165,4 +220,25 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* _playerInputComponen
 	_playerInputComponent->BindAction("StartFireBullet", IE_Pressed, this, &ASpaceship::StartFireBullet);
 	_playerInputComponent->BindAction("EndFireBullet", IE_Released, this, &ASpaceship::EndFireBullet);
 	#pragma endregion
+}
+
+void ASpaceship::NotifyActorBeginOverlap(AActor* _otherActor)
+{
+	//由于是重写，故先调用父类方法
+	Super::NotifyActorBeginOverlap(_otherActor);
+
+	//玩家碰到敌人就死掉
+	AEnemyship* _enemyship = Cast<AEnemyship>(_otherActor);
+	if (_enemyship)
+	{
+		//销毁敌人飞船
+		_enemyship->Destroy();
+
+		OnDeath();
+	}
+}
+
+bool ASpaceship::IsAlive() const
+{
+	return isAlive;
 }
