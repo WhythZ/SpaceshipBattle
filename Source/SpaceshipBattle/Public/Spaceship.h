@@ -44,6 +44,9 @@ protected:
 	//注意此处是EditAnywhere而不是VisibleAnywhere，使得可在蓝图编辑器中修改该数值属性
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float moveSpeed = 2000.0f;                               //飞船移动速度
+
+	bool bMovingVertical = false;
+	bool bMovingHorizontal = false;
 	#pragma endregion
 
 	#pragma region Attack
@@ -62,6 +65,8 @@ protected:
 	#pragma endregion
 
 	#pragma region Restart
+	bool bAlive = true;                                      //玩家是否存活的标志位
+
 	FTimerHandle restartTimerHandle;                         //用于定时重启的计时器句柄
 	
 	UPROPERTY(EditAnywhere, Category = "Restart")
@@ -100,7 +105,7 @@ protected:
 	void RestartLevel();                                     //用于在玩家死亡后重启游戏
 	#pragma endregion
 
-	bool isAlive = true;                                     //玩家是否存活的标志位
+	void UpdateParticleSystem();                             //更新粒子系统启用情况
 
 public:
 	virtual void Tick(float) override;                       //逐帧调用的更新函数

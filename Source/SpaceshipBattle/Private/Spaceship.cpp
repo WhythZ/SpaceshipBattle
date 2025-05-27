@@ -98,7 +98,10 @@ void ASpaceship::Move(float _delta)
 void ASpaceship::HandleVerticalMoveInput(float _value)
 {
 	//死亡时不执行该函数
-	if (!isAlive) return;
+	if (!bAlive) return;
+
+	if (_value != 0.0f) bMovingVertical = true;
+	else bMovingVertical = false;
 
 	//_value为1表示向上，-1表示向下，0表示不移动
 	//注意UpVector代表(0,0,1)是Z轴上的方向，而ForwardVector代表(1,0,0)是X轴上的方向
@@ -109,7 +112,10 @@ void ASpaceship::HandleVerticalMoveInput(float _value)
 void ASpaceship::HandleHorizontalMoveInput(float _value)
 {
 	//死亡时不执行该函数
-	if (!isAlive) return;
+	if (!bAlive) return;
+
+	if (_value != 0.0f) bMovingHorizontal = true;
+	else bMovingHorizontal = false;
 
 	//_value为1表示向右，-1表示向左，0表示不移动
 	//注RightVector代表(0,1,0)是Y轴上的方向
@@ -120,7 +126,7 @@ void ASpaceship::HandleHorizontalMoveInput(float _value)
 void ASpaceship::FireBullet()
 {
 	//死亡时不执行该函数
-	if (!isAlive) return;
+	if (!bAlive) return;
 
 	//防止子弹预制体未被设置，导致调用此函数导致崩溃
 	if (bulletBlueprint)
@@ -139,7 +145,7 @@ void ASpaceship::FireBullet()
 void ASpaceship::StartFireBullet()
 {
 	//死亡时不执行该函数
-	if (!isAlive) return;
+	if (!bAlive) return;
 
 	//开启fireBulletTimerHandle计时器
 	GetWorldTimerManager().SetTimer(
@@ -167,7 +173,7 @@ void ASpaceship::OnDeath()
 	//将StaticMesh的可见性设置为不可见，隐藏飞船
 	spaceshipStaticMesh->SetVisibility(false);
 	//将玩家存活状态设置为false
-	isAlive = false;
+	bAlive = false;
 
 	//开启计时器
 	GetWorldTimerManager().SetTimer(
@@ -186,7 +192,7 @@ void ASpaceship::RestartLevel()
 {
 	//#pragma region ResetPlayer
 	////重置玩家存活状态
-	//isAlive = true;
+	//bAlive = true;
 	////恢复可见性
 	//spaceshipStaticMesh->SetVisibility(true);
 	////重置玩家位置与旋转角度
@@ -209,12 +215,26 @@ void ASpaceship::RestartLevel()
 	//UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
 }
 
+void ASpaceship::UpdateParticleSystem()
+{
+	if (!bAlive)
+	{
+		thrusterParticleSystem->Deactivate();
+		return;
+	}
+
+	if (bMovingVertical || bMovingHorizontal)
+		thrusterParticleSystem->Activate();
+	else
+		thrusterParticleSystem->Deactivate();
+}
+
 void ASpaceship::Tick(float _delta)
 {
 	Super::Tick(_delta);
 
 	//若玩家已死亡则不执行
-	if (isAlive)
+	if (bAlive)
 	{
 		#pragma region Control
 		//每帧调用LookAtCursor函数，使飞船持续朝向鼠标光标位置
@@ -222,6 +242,9 @@ void ASpaceship::Tick(float _delta)
 		//每帧调用Move函数，根据玩家输入实际移动飞船
 		Move(_delta);
 		#pragma endregion
+
+		//粒子系统更新
+		UpdateParticleSystem();
 	}
 }
 
@@ -230,7 +253,7 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* _playerInputComponen
 	Super::SetupPlayerInputComponent(_playerInputComponent);
 	
 	//这些输入检测并不是动态更新的，而是在开始时进行绑定的，所以在此处执行下述语句是无意义的
-	//if (!isAlive) return;
+	//if (!bAlive) return;
 
 	#pragma region Movement
 	//此处采用轴绑定（处理连续的输入）而不是行为绑定BindAction（处理单次的输入，例如用于跳跃输入）
@@ -266,5 +289,5 @@ void ASpaceship::NotifyActorBeginOverlap(AActor* _otherActor)
 
 bool ASpaceship::IsAlive() const
 {
-	return isAlive;
+	return bAlive;
 }

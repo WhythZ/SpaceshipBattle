@@ -76,11 +76,3 @@ void AEnemyshipSpawner::Tick(float _delta)
 {
 	Super::Tick(_delta);
 }
-
-//void AEnemyshipSpawner::ClearAllEnemyships()
-//{
-//	TArray<AActor*> _enemyships;
-//	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyship::StaticClass(), _enemyships);
-//	for (AActor* _enemyship : _enemyships)
-//		_enemyship->Destroy();
-//}
