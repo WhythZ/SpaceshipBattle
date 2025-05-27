@@ -32,7 +32,7 @@ protected:
 	FTimerHandle spawnTimerHandle;                             //用于间歇生成敌人飞船的计时器句柄
 
 	UPROPERTY(EditAnywhere, Category = "SpawnEnemyship")
-	float spawnInterval = 1.0f;                                //敌人飞船生成的时间间隔，单位为秒
+	float spawnInterval = 2.0f;                                //敌人飞船生成的时间间隔，单位为秒
 	#pragma endregion
 
 public:	
