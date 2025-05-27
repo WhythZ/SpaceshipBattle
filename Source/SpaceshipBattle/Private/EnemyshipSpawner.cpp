@@ -65,8 +65,10 @@ void AEnemyshipSpawner::SpawnEnemyship()
 	{
 		//根据随机位置和零旋转生成enemyshipBlueprint类型的敌人飞船实例
 		FActorSpawnParameters _spawnParams;
-		GetWorld()->SpawnActor<AEnemyship>(enemyshipBlueprint,
+		AEnemyship* _newEnemyship = GetWorld()->SpawnActor<AEnemyship>(enemyshipBlueprint,
 			FindSpawnPoint(), FRotator::ZeroRotator, _spawnParams);
+		////将新生成的敌人飞船添加到数组中
+		//if (_newEnemyship) enemieships.Add(_newEnemyship);
 	}
 }
 
@@ -74,3 +76,11 @@ void AEnemyshipSpawner::Tick(float _delta)
 {
 	Super::Tick(_delta);
 }
+
+//void AEnemyshipSpawner::ClearAllEnemyships()
+//{
+//	TArray<AActor*> _enemyships;
+//	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyship::StaticClass(), _enemyships);
+//	for (AActor* _enemyship : _enemyships)
+//		_enemyship->Destroy();
+//}

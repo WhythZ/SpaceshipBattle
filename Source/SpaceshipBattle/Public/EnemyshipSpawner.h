@@ -19,6 +19,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Component")
 	TSubclassOf<AEnemyship> enemyshipBlueprint;                //接收敌人预制体，用于实例化敌人
 
+	//TArray<AEnemyship*> enemieships;                           //存储所有生成的敌人飞船的数组
+
 	#pragma region SpawnEnemyship
 	UPROPERTY(VisibleAnywhere, Category = "SpawnEnemyship")
 	UBoxComponent* spawnArea;                                  //敌人生成区域，使用盒形碰撞组件作为生成区域的参考
@@ -47,4 +49,6 @@ protected:
 
 public:	
 	virtual void Tick(float) override;
+
+	//void ClearAllEnemyships();
 };

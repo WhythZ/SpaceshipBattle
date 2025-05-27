@@ -86,7 +86,7 @@ protected:
 
 	#pragma region Restart
 	void OnDeath();                                          //玩家死亡时调用的函数，用于处理死亡逻辑
-	void Restart();                                          //用于在玩家死亡后重启游戏
+	void RestartLevel();                                     //用于在玩家死亡后重启游戏
 	#pragma endregion
 
 	bool isAlive = true;                                     //玩家是否存活的标志位

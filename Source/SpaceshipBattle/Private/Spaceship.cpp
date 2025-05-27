@@ -163,23 +163,38 @@ void ASpaceship::OnDeath()
 
 	//开启计时器
 	GetWorldTimerManager().SetTimer(
-		restartTimerHandle,      //计时器句柄
-		this,                    //调用的对象
-		&ASpaceship::Restart,    //调用的函数
-		restartCooldown,         //计时器间隔时间
-		false                    //此处无需循环调用
+		restartTimerHandle,         //计时器句柄
+		this,                       //调用的对象
+		&ASpaceship::RestartLevel,  //调用的函数
+		restartCooldown,            //计时器间隔时间
+		false                       //此处无需循环调用
 	);
 }
 
-void ASpaceship::Restart()
+void ASpaceship::RestartLevel()
 {
-	//重置玩家存活状态
-	isAlive = true;
-	//恢复可见性
-	spaceshipStaticMesh->SetVisibility(true);
+	//#pragma region ResetPlayer
+	////重置玩家存活状态
+	//isAlive = true;
+	////恢复可见性
+	//spaceshipStaticMesh->SetVisibility(true);
+	////重置玩家位置与旋转角度
+	//SetActorLocation(FVector(0, 0, 100));
+	//SetActorRotation(FRotator::ZeroRotator);
+	//#pragma endregion
 
-	//重启当前关卡
-	//UGameplayStatics::OpenLevel(this, "MainMap");
+	//#pragma region ResetEnemy
+	////清空场上敌人
+	//TArray<AActor*> _enemyships;
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyship::StaticClass(), _enemyships);
+	//for (AActor* _enemyship : _enemyships)
+	//	_enemyship->Destroy();
+	//#pragma endregion
+
+	//重启当前关卡，不知为何一旦使用OpenLevel函数，虽能编译成功，但一启动游戏就会阻塞、玩家无法移动、敌人不生成
+	//因为本函数名为Restart（后面才改为RestartLevel），可能与某个系统函数冲突了，导致每次新场景加载时就会调用一次本函数
+	//而调用该函数又会导致场景重新加载，继而无限重新加载，导致死循环
+	UGameplayStatics::OpenLevel(this, "MainMap");
 	//UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
 }
 
