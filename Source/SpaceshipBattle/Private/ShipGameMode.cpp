@@ -5,5 +5,4 @@
 void AShipGameMode::IncreaseScore()
 {
 	score++;
-	UE_LOG(LogTemp, Warning, TEXT("AShipGameMode::IncreaseScore()"));
 }

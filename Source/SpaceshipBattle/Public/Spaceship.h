@@ -10,6 +10,7 @@
 class USphereComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class USoundCue;
 class ABullet;
 
 UCLASS()
@@ -62,6 +63,13 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Restart")
 	double restartCooldown = 2.0f;                           //死亡后经过多久重启游戏
+	#pragma endregion
+
+	#pragma region Sounds
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	USoundCue* fireBulletSFX;
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	USoundCue* gameOverSFX;
 	#pragma endregion
 
 public:

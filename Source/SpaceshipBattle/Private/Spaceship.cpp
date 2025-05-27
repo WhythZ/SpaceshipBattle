@@ -15,8 +15,9 @@
 #include "Engine/World.h"
 //引入计时器用于子弹连续发射
 #include "TimerManager.h"
-//用于重启关卡等功能
+//用于重启关卡、播放音效等功能
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 //引入子弹头文件
 #include "Bullet.h"
@@ -126,6 +127,9 @@ void ASpaceship::FireBullet()
 			bulletSpawnPoint->GetComponentLocation(),
 			bulletSpawnPoint->GetComponentRotation(),_spawnParams);
 	}
+
+	//播放音效
+	UGameplayStatics::PlaySoundAtLocation(this, fireBulletSFX, GetActorLocation());
 }
 
 void ASpaceship::StartFireBullet()
@@ -169,6 +173,9 @@ void ASpaceship::OnDeath()
 		restartCooldown,            //计时器间隔时间
 		false                       //此处无需循环调用
 	);
+
+	//播放音效
+	UGameplayStatics::PlaySoundAtLocation(this, gameOverSFX, GetActorLocation());
 }
 
 void ASpaceship::RestartLevel()
